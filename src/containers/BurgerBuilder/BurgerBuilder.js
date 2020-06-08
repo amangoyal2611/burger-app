@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import Aux from '../../hoc/Auxx';
 import Burger from '../../components/Burger/Burger'
 import BuildControls from '../../components/Burger/BuildControls/BuildControls'
+import Modal from '../../components/UI/Modal/Modal'
+import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary'
 
 const INGREDIENTS_PRICE = {
     salad: 10,
@@ -21,9 +23,10 @@ class BurgerBuilder extends Component {
         },
         totalPrice: 20,
         purchasable: false,
+        purchasing: false
     }
 
-    updatePurchaseState(ingredients) {
+    updatePurchaseState = (ingredients) => {
 
         const sum = Object.keys(ingredients)
             .map(igKey => {
@@ -34,6 +37,10 @@ class BurgerBuilder extends Component {
             }, 0);
 
         this.setState({ purchasable: sum > 0 });
+    }
+
+    purchaseHandler = () => {
+        this.setState({ purchasing: true })
     }
 
     addIngredientHandler = (type) => {
@@ -76,13 +83,17 @@ class BurgerBuilder extends Component {
     render() {
         return (
             <Aux>
+                <Modal show={this.state.purchasing}>
+                    <OrderSummary ingredients={this.state.ingredients}></OrderSummary>
+                </Modal>
                 <Burger ingredients={this.state.ingredients} />
                 <BuildControls
                     ingredientAdded={this.addIngredientHandler}
                     ingredientRemoved={this.removeIngredientHandler}
                     disabled={this.state.ingredients}
                     price={this.state.totalPrice}
-                    isPurchasable={this.state.purchasable} />
+                    isPurchasable={this.state.purchasable}
+                    ordered={this.purchaseHandler}/>
             </Aux>
         );
     }
