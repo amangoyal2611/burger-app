@@ -6,6 +6,7 @@ import Modal from '../../components/UI/Modal/Modal'
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary'
 import instance from '../../axios';
 import Spinner from '../../components/UI/Spinner/Spinner'
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 
 const INGREDIENTS_PRICE = {
     salad: 10,
@@ -65,13 +66,11 @@ class BurgerBuilder extends Component {
             },
             deliveryMethod: 'fastest'
         }
-        instance.post('/orders.json', order)
+        instance.post('/orders', order)
             .then(res => {
-                console.log(res);
                 this.setState({ loading: false, purchasing: false });
             })
             .catch(e => {
-                console.log(e);
                 this.setState({ loading: false, purchasing: false });
             });
     }
@@ -115,13 +114,13 @@ class BurgerBuilder extends Component {
 
     render() {
 
-        let orderSummary =  <OrderSummary
-        ingredients={this.state.ingredients}
-        purchaseCancelled={this.purchaseCancelHandler}
-        purchaseContinued={this.purchaseContinueHandler}
-        totalPrice={this.state.totalPrice}
+        let orderSummary = <OrderSummary
+            ingredients={this.state.ingredients}
+            purchaseCancelled={this.purchaseCancelHandler}
+            purchaseContinued={this.purchaseContinueHandler}
+            totalPrice={this.state.totalPrice}
         ></OrderSummary>
-        
+
         if (this.state.loading) {
             orderSummary = <Spinner></Spinner>;
         }
@@ -129,7 +128,7 @@ class BurgerBuilder extends Component {
         return (
             <Aux>
                 <Modal show={this.state.purchasing} modalClosed={this.purchaseCancelHandler}>
-                   {orderSummary}
+                    {orderSummary}
                 </Modal>
                 <Burger ingredients={this.state.ingredients} />
                 <BuildControls
@@ -144,4 +143,4 @@ class BurgerBuilder extends Component {
     }
 }
 
-export default BurgerBuilder;
+export default withErrorHandler(BurgerBuilder, instance);
