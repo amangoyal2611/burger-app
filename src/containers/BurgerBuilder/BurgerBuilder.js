@@ -18,61 +18,22 @@ const INGREDIENTS_PRICE = {
 class BurgerBuilder extends Component {
 
     state = {
-        ingredients: {
-            salad: 0,
-            bacon: 0,
-            cheese: 0,
-            meat: 0
-        },
+        ingredients: null,
         totalPrice: 20,
         purchasable: false,
         purchasing: false,
-        loading: false
+        loading: false,
+        error: false
     }
 
-    updatePurchaseState = (ingredients) => {
-
-        const sum = Object.keys(ingredients)
-            .map(igKey => {
-                return ingredients[igKey];
-            })
-            .reduce((newSum, el) => {
-                return newSum + el;
-            }, 0);
-
-        this.setState({ purchasable: sum > 0 });
-    }
-
-    purchaseHandler = () => {
-        this.setState({ purchasing: true })
-    }
-
-    purchaseCancelHandler = () => {
-        this.setState({ purchasing: false })
-    }
-
-    purchaseContinueHandler = () => {
-        this.setState({ loading: true });
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'Aman',
-                address: {
-                    city: 'Ghaziabad',
-                    country: "India"
-                },
-                email: 'aman@gmail.com'
-            },
-            deliveryMethod: 'fastest'
-        }
-        instance.post('/orders', order)
+    componentDidMount() {
+        instance.get('https://burger-79093.firebaseio.com/ingredients.json')
             .then(res => {
-                this.setState({ loading: false, purchasing: false });
+                this.setState({ ingredients: res.data });
             })
             .catch(e => {
-                this.setState({ loading: false, purchasing: false });
-            });
+            this.setState({error: true})
+        })
     }
 
     addIngredientHandler = (type) => {
@@ -112,17 +73,83 @@ class BurgerBuilder extends Component {
         this.updatePurchaseState(updatedIngredients);
     }
 
+    updatePurchaseState = (ingredients) => {
+
+        const sum = Object.keys(ingredients)
+            .map(igKey => {
+                return ingredients[igKey];
+            })
+            .reduce((newSum, el) => {
+                return newSum + el;
+            }, 0);
+
+        this.setState({ purchasable: sum > 0 });
+    }
+
+    purchaseHandler = () => {
+        this.setState({ purchasing: true })
+    }
+
+    purchaseCancelHandler = () => {
+        this.setState({ purchasing: false })
+    }
+
+    purchaseContinueHandler = () => {
+        this.setState({ loading: true });
+        const order = {
+            ingredients: this.state.ingredients,
+            price: this.state.totalPrice,
+            customer: {
+                name: 'Aman',
+                address: {
+                    city: 'Ghaziabad',
+                    country: "India"
+                },
+                email: 'aman@gmail.com'
+            },
+            deliveryMethod: 'fastest'
+        }
+        instance.post('/orders.json', order)
+            .then(res => {
+                this.setState({ loading: false, purchasing: false });
+            })
+            .catch(e => {
+                this.setState({ loading: false, purchasing: false });
+            });
+    }
+
+
     render() {
 
-        let orderSummary = <OrderSummary
-            ingredients={this.state.ingredients}
-            purchaseCancelled={this.purchaseCancelHandler}
-            purchaseContinued={this.purchaseContinueHandler}
-            totalPrice={this.state.totalPrice}
-        ></OrderSummary>
+        let orderSummary = null;
 
-        if (this.state.loading) {
-            orderSummary = <Spinner></Spinner>;
+        let burger = this.state.error ? <p>Can't connect to server</p> : <Spinner />;
+
+        if (this.state.ingredients) {
+            burger = (
+                <Aux>
+                    <Burger ingredients={this.state.ingredients} />
+                    <BuildControls
+                        ingredientAdded={this.addIngredientHandler}
+                        ingredientRemoved={this.removeIngredientHandler}
+                        disabled={this.state.ingredients}
+                        price={this.state.totalPrice}
+                        isPurchasable={this.state.purchasable}
+                        ordered={this.purchaseHandler} />
+                </Aux>
+            );
+
+            orderSummary = <OrderSummary
+                ingredients={this.state.ingredients}
+                purchaseCancelled={this.purchaseCancelHandler}
+                purchaseContinued={this.purchaseContinueHandler}
+                totalPrice={this.state.totalPrice}
+            ></OrderSummary>
+
+            if (this.state.loading) {
+                orderSummary = <Spinner></Spinner>;
+            }
+
         }
 
         return (
@@ -130,14 +157,7 @@ class BurgerBuilder extends Component {
                 <Modal show={this.state.purchasing} modalClosed={this.purchaseCancelHandler}>
                     {orderSummary}
                 </Modal>
-                <Burger ingredients={this.state.ingredients} />
-                <BuildControls
-                    ingredientAdded={this.addIngredientHandler}
-                    ingredientRemoved={this.removeIngredientHandler}
-                    disabled={this.state.ingredients}
-                    price={this.state.totalPrice}
-                    isPurchasable={this.state.purchasable}
-                    ordered={this.purchaseHandler} />
+                {burger}
             </Aux>
         );
     }
