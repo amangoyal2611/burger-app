@@ -27,13 +27,14 @@ class BurgerBuilder extends Component {
     }
 
     componentDidMount() {
+
         instance.get('https://burger-79093.firebaseio.com/ingredients.json')
             .then(res => {
                 this.setState({ ingredients: res.data });
             })
             .catch(e => {
-            this.setState({error: true})
-        })
+                this.setState({ error: true })
+            })
     }
 
     addIngredientHandler = (type) => {
@@ -95,27 +96,32 @@ class BurgerBuilder extends Component {
     }
 
     purchaseContinueHandler = () => {
-        this.setState({ loading: true });
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'Aman',
-                address: {
-                    city: 'Ghaziabad',
-                    country: "India"
-                },
-                email: 'aman@gmail.com'
-            },
-            deliveryMethod: 'fastest'
-        }
-        instance.post('/orders.json', order)
-            .then(res => {
-                this.setState({ loading: false, purchasing: false });
-            })
-            .catch(e => {
-                this.setState({ loading: false, purchasing: false });
-            });
+
+        console.log(this.props)
+
+        this.props.history.push('/checkout');
+
+        // this.setState({ loading: true });
+        // const order = {
+        //     ingredients: this.state.ingredients,
+        //     price: this.state.totalPrice,
+        //     customer: {
+        //         name: 'Aman',
+        //         address: {
+        //             city: 'Ghaziabad',
+        //             country: "India"
+        //         },
+        //         email: 'aman@gmail.com'
+        //     },
+        //     deliveryMethod: 'fastest'
+        // }
+        // instance.post('/orders.json', order)
+        //     .then(res => {
+        //         this.setState({ loading: false, purchasing: false });
+        //     })
+        //     .catch(e => {
+        //         this.setState({ loading: false, purchasing: false });
+        //     });
     }
 
 
