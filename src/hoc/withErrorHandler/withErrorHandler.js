@@ -24,6 +24,7 @@ const withErrorHandler = (WrappedComponent, axios) => {
                     console.log(err.message)
                     this.setState({ error: err });
                 });
+
         }
 
         componentWillUnmount() {
