@@ -104,6 +104,8 @@ class BurgerBuilder extends Component {
             // console.log(encodeURIComponent(i));
         }
 
+        queryParams.push("price="+this.state.totalPrice)
+
         const queryString = queryParams.join("&");
 
         this.props.history.push({
@@ -111,27 +113,7 @@ class BurgerBuilder extends Component {
             search: '?' + queryString
         });
 
-        // this.setState({ loading: true });
-        // const order = {
-        //     ingredients: this.state.ingredients,
-        //     price: this.state.totalPrice,
-        //     customer: {
-        //         name: 'Aman',
-        //         address: {
-        //             city: 'Ghaziabad',
-        //             country: "India"
-        //         },
-        //         email: 'aman@gmail.com'
-        //     },
-        //     deliveryMethod: 'fastest'
-        // }
-        // instance.post('/orders.json', order)
-        //     .then(res => {
-        //         this.setState({ loading: false, purchasing: false });
-        //     })
-        //     .catch(e => {
-        //         this.setState({ loading: false, purchasing: false });
-        //     });
+      
     }
 
 
