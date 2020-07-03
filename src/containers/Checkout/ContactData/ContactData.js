@@ -31,6 +31,7 @@ class ContactData extends Component {
             },
             deliveryMethod: 'fastest'
         }
+        console.log(order.price)
         instance.post('/orders.json', order)
             .then(res => {
                 this.setState({ loading: false, purchasing: false });
