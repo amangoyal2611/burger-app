@@ -16,15 +16,37 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'Your Name'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true
+                },
+                valid: false
             },
-            city: {
+            street: {
                 elementType: 'input',
                 elementConfig: {
                     type: 'text',
-                    placeholder: 'Your City'
+                    placeholder: 'Street'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true
+                },
+                valid: false
+            },
+            zipCode: {
+                elementType: 'input',
+                elementConfig: {
+                    type: 'text',
+                    placeholder: 'Zip Code'
+                },
+                value: '',
+                validation: {
+                    required: true,
+                    minLength: 3,
+                    maxLength: 6
+                },
+                valid: false
             },
             country: {
                 elementType: 'input',
@@ -32,7 +54,11 @@ class ContactData extends Component {
                     type: 'text',
                     placeholder: 'Your Country'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true
+                },
+                valid: false
             },
             email: {
                 elementType: 'input',
@@ -40,7 +66,11 @@ class ContactData extends Component {
                     type: 'email',
                     placeholder: 'Your E-mail'
                 },
-                value: ''
+                value: '',
+                validation: {
+                    required: true
+                },
+                valid: false
             },
             deliveryMethod: {
                 elementType: 'select',
@@ -51,16 +81,25 @@ class ContactData extends Component {
                     ]
                 },
                 value: ''
-            },
+            }
         },
 
-        name: '',
-        email: '',
-        address: {
-            street: '',
-            postalCode: '',
-        },
         loading: false
+    }
+
+    checkValidity(value, rules) {
+        let isValid = true;
+
+        if (rules.required)
+            isValid = value.trim() !== '' && isValid;
+
+        if (rules.minLength)
+            isValid = value.length >= rules.minLength && isValid;
+
+        if (rules.maxLength)
+            isValid = value.length <= rules.maxLength && isValid;
+
+        return isValid;
     }
 
     orderHandler = (event) => {
@@ -94,6 +133,9 @@ class ContactData extends Component {
         let updatedElement = { ...updatedFormData[inputIdentifier] };
 
         updatedElement.value = event.target.value;
+        updatedElement.valid = this.checkValidity(updatedElement.value, updatedElement.validation);
+
+        console.log(updatedElement)
 
         updatedFormData[inputIdentifier] = updatedElement
 
