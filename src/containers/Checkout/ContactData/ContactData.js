@@ -66,9 +66,16 @@ class ContactData extends Component {
     orderHandler = (event) => {
         event.preventDefault();
         this.setState({ loading: true });
+
+        let formData = {};
+        for (let formElementIdentifier in this.state.orderForm) {
+            formData[formElementIdentifier] = this.state.orderForm[formElementIdentifier].value
+        }
+
         const order = {
             ingredients: this.props.ingredients,
-            price: this.props.totalPrice
+            price: +this.props.totalPrice,
+            orderData: formData
         }
         console.log(order.price)
         instance.post('/orders.json', order)
@@ -79,6 +86,18 @@ class ContactData extends Component {
             .catch(e => {
                 this.setState({ loading: false, purchasing: false });
             });
+    }
+
+    formChangedhandler = (event, inputIdentifier) => {
+        const updatedFormData = { ...this.state.orderForm };
+
+        let updatedElement = { ...updatedFormData[inputIdentifier] };
+
+        updatedElement.value = event.target.value;
+
+        updatedFormData[inputIdentifier] = updatedElement
+
+        this.setState({ orderForm: updatedFormData });
     }
 
     render() {
@@ -99,6 +118,7 @@ class ContactData extends Component {
                         elementType={formElement.config.elementType}
                         elementConfig={formElement.config.elementConfig}
                         value={formElement.config.value}
+                        changed={(event) => (this.formChangedhandler(event, formElement.id))}
                     />
                 ))}
 
