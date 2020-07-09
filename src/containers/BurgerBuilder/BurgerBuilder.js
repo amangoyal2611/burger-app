@@ -56,7 +56,7 @@ class BurgerBuilder extends Component {
     render() {
 
         let orderSummary = null;
-
+        console.log(this.props.error)
         let burger = this.props.error ? <p>Can't connect to server</p> : <Spinner />;
 
         if (this.props.ings) {
@@ -98,7 +98,7 @@ const mapDispatchToProps = dispatch => {
 
         onIngredientAdded: (ingName) => dispatch(burgerBuilderActions.addIngredient(ingName)),
         onIngredientRemoved: (ingName) => dispatch(burgerBuilderActions.removeIngredient(ingName)),
-        onInitIngredients: () => dispatch(burgerBuilderActions.fetchInititalIngredients)
+        onInitIngredients: () => dispatch(burgerBuilderActions.fetchInititalIngredients())
 
     }
 }
