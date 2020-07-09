@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
-import {connect} from 'react-redux'
+import { connect } from 'react-redux'
 import Button from '../../../components/UI/Button/Button'
 import classes from './ContactData.module.css'
 import instance from '../../../axios'
 import Spinner from '../../../components/UI/Spinner/Spinner'
 import Input from '../../../components/UI/Input/Input'
+import * as actions from '../../../store/actions/index'
+import withErrorHandler from '../../../hoc/withErrorHandler/withErrorHandler'
 
 class ContactData extends Component {
     state = {
@@ -86,14 +88,14 @@ class ContactData extends Component {
                     ]
                 },
                 validation: {
-                    
+
                 },
                 value: 'fastest',
                 valid: true
             }
         },
         isFormValid: false,
-        loading: false
+    
     }
 
     checkValidity(value, rules) {
@@ -113,7 +115,7 @@ class ContactData extends Component {
 
     orderHandler = (event) => {
         event.preventDefault();
-        this.setState({ loading: true });
+        // this.setState({ loading: true });
 
         let formData = {};
         for (let formElementIdentifier in this.state.orderForm) {
@@ -125,15 +127,9 @@ class ContactData extends Component {
             price: +this.props.price,
             orderData: formData
         }
-        console.log(order.price)
-        instance.post('/orders.json', order)
-            .then(res => {
-                this.setState({ loading: false, purchasing: false });
-                this.props.history.push('/');
-            })
-            .catch(e => {
-                this.setState({ loading: false, purchasing: false });
-            });
+
+        this.props.onOrderBurger(order)
+
     }
 
     formChangedhandler = (event, inputIdentifier) => {
@@ -148,7 +144,7 @@ class ContactData extends Component {
         let isFormValid = true;
 
         for (let inputIdentifier in updatedFormData) {
-            
+
             isFormValid = updatedFormData[inputIdentifier].valid && isFormValid
         }
 
@@ -187,7 +183,7 @@ class ContactData extends Component {
             </form>
         );
 
-        if (this.state.loading) {
+        if (this.props.loading) {
             form = <Spinner></Spinner>;
         }
 
@@ -203,8 +199,15 @@ class ContactData extends Component {
 const mapStateToProps = state => {
     return {
         ings: state.ingredients,
-        price: state.totalPrice
+        price: state.totalPrice,
+        loading: state.loading
     }
 }
 
-export default connect(mapStateToProps)(ContactData);
+const mapDispatchToProps = dispatch => {
+    return {
+        onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData))
+   }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(ContactData, instance));
